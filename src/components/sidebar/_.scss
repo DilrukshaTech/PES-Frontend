@@ -1,0 +1,159 @@
+#sidebar {
+  width: 250px;
+  height: 97vh;
+  background-color: #ffffff;
+  padding: 0px 20px 0px 20px;
+
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .sidebar-header {
+    display: flex;
+
+    margin-bottom: 20px;
+    border-bottom: #f5f8ff 2px solid;
+
+    & .sidebar-logo {
+      width: 100%;
+      max-width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    & h2 {
+      font-size: 18px;
+      color: #4880ff;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      font-weight: 700;
+    }
+  }
+
+  .sidebar-menu {
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    & ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+
+      & li {
+        width: 100%;
+        padding: 17px 22px;
+        font-size: 17px;
+        text-align: left;
+        border-radius: 10px;
+        cursor: pointer;
+
+        margin-bottom: 0.5rem;
+        transition: background-color 0.3s;
+
+        &:hover {
+          background-color: #4880ff;
+          color: #fff;
+          border-radius: 10px;
+        }
+        &.active {
+          background-color: #4880ff;
+          color: #fff;
+          border-radius: 10px;
+          
+        }
+
+        .menu-item {
+          display: flex;
+          align-items: center;
+
+          gap: 20px;
+          color: inherit; /* Inherit color from parent */
+          text-decoration: none;
+
+          .icon {
+            font-size: 18px;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+          }
+          .active-icon {
+            font-size: 18px;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            color: #fff;
+            fill: #fff;
+          }
+        }
+      }
+    }
+
+  .submenu {
+  display: flex;
+  flex-direction: column;
+  padding-left: 32px; // aligned under parent label
+  margin-top: 8px;
+  gap: 4px;
+
+  .submenu-item {
+    font-size: 14px;
+    color: #6b7280;
+    padding: 4px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover {
+      color: #3e7bfa;
+      background: transparent;
+    }
+    &.active {
+      color: #3e7bfa;
+      font-weight: 500;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      background-color: #3e7bfa;
+      border-radius: 50%;
+      display: inline-block;
+    }
+  }
+}
+
+  }
+  .sidebar-footer {
+    display: flex;
+    gap: 1rem;
+    padding: 10px 0;
+    font-size: 15px;
+    color: #202224;
+    border-top: #f5f8ff 2px solid;
+    cursor: pointer;
+
+    & .sidebar-footer-icon {
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    & h2 {
+      font-size: 15px;
+      color: #202224;
+
+      font-weight: 500;
+    }
+  }
+}

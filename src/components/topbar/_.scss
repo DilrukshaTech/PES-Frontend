@@ -1,0 +1,19 @@
+#topbar-container {
+  position: relative;
+  display: flex;
+  justify-content:space-between;
+  height: 80px;
+  padding: 20px 15px;
+  gap: 50px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #FFF;
+  box-sizing: border-box;
+
+  
+  .rightbar{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+}
