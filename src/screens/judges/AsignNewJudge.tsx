@@ -86,22 +86,20 @@ export const AsignNewJudge = () => {
 
   // mutation to assign judge
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: async (values: JudgeType) => {
-      return FetchData({
-        url: "/sessionjudges",
-        method: "POST",
-        data: {
-          sessionId: values.sessionId,
-          judgeId: values.judgeId,
-        },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["session-judges"] });
-      queryClient.invalidateQueries({ queryKey: ["events"] });
-      setHandleOpen(false);
-    },
-  });
+  mutationFn: async (values: JudgeType) => {
+    return FetchData({
+      url: "/sessionjudges",
+      method: "POST",
+      data: [values], 
+    });
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["session-judges"] });
+    queryClient.invalidateQueries({ queryKey: ["events"] });
+    setHandleOpen(false);
+  },
+});
+
 
   const formik = useFormik({
     initialValues: {
@@ -165,30 +163,36 @@ export const AsignNewJudge = () => {
           onClick={formik.handleSubmit}
           content={
             <>
-              <DropDown
-                label="Session"
-                name="sessionId"
-                value={formik.values.sessionId}
-                onChange={formik.handleChange}
-                options={
-                  eventData?.sessions?.map((session) => ({
-                    label: session.name,
-                    value: session.id,
-                  })) || []
-                }
-              />
-              <DropDown
-                label="Judge"
-                name="judgeId"
-                value={formik.values.judgeId}
-                onChange={formik.handleChange}
-                options={
-                  judges?.map((judge) => ({
-                    label: judge.name,
-                    value: Number(judge.id),
-                  })) || []
-                }
-              />
+             <DropDown
+  label="Session"
+  name="sessionId"
+  value={formik.values.sessionId}
+  onChange={(e) =>
+    formik.setFieldValue("sessionId", Number(e.target.value))
+  }
+  options={
+    eventData?.sessions?.map((session) => ({
+      label: session.name,
+      value: session.id,
+    })) || []
+  }
+/>
+
+<DropDown
+  label="Judge"
+  name="judgeId"
+  value={formik.values.judgeId}
+  onChange={(e) =>
+    formik.setFieldValue("judgeId", Number(e.target.value))
+  }
+  options={
+    judges?.map((judge) => ({
+      label: judge.name,
+      value: (judge.id),
+    })) || []
+  }
+/>
+
             </>
           }
         />

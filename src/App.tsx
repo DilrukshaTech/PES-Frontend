@@ -14,6 +14,7 @@ import "./index.css";
 import { AsignNewJudge } from "./screens/judges/AsignNewJudge";
 import { AssignIndividual } from "./screens/presenters/AssignIndividual";
 import { AssignGroups } from "./screens/presenters/AssignGroups";
+import { Criteria } from "./screens/criteria/Criteria";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
                 element={<AssignIndividual />}
               />
               <Route path="presenters/groups" element={<AssignGroups />} />
+              <Route path="criteria" element={<Criteria />} />
             </Route>
           </Routes>
         </Suspense>

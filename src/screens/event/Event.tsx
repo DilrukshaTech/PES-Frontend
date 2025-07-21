@@ -3,12 +3,11 @@ import ongoingIcon from "../../assets/ongoing.png";
 import completedIcon from "../../assets/completed.png";
 import upcomingIcon from "../../assets/cancled.png";
 import Table from "../../components/table/Table";
-import {  useQuery,useQueryClient,useMutation } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useAxios } from "../../utils/useAxios";
 import { BsTrashFill } from "react-icons/bs";
 import { BsPencilSquare } from "react-icons/bs";
 import Loading from "../../components/loading/Loading";
-
 
 type EventType = {
   id?: number;
@@ -19,25 +18,24 @@ type EventType = {
 };
 
 export const Event: React.FC = () => {
-
   const { FetchData } = useAxios();
   const queryClient = useQueryClient();
 
-  
-
-  const { data: events, isPending,isLoading,isFetching } = useQuery<EventType[]>({
-      refetchOnWindowFocus: false, // prevents refetch when tab regains focus
-  queryKey: ["events"],
-  queryFn: () =>
-    FetchData({
-      url: "/events",
-      method: "GET",
-    })
-  
- 
-
-});
-
+  const {
+    data: events,
+    isPending,
+    isLoading,
+    isFetching,
+  } = useQuery<EventType[]>({
+    enabled: true, // ensures the query runs when the component mounts
+    refetchOnWindowFocus: false, // prevents refetch when tab regains focus
+    queryKey: ["events"],
+    queryFn: () =>
+      FetchData({
+        url: "/events",
+        method: "GET",
+      }),
+  });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -52,11 +50,10 @@ export const Event: React.FC = () => {
     },
   });
 
-const handleDelete = async (id: number) => {
-  console.log("Deleting ID:", id); 
-  await deleteMutation.mutateAsync(id);
-};
-
+  const handleDelete = async (id: number) => {
+    console.log("Deleting ID:", id);
+    await deleteMutation.mutateAsync(id);
+  };
 
   const tableColumns = [
     { field: "id", headerName: "ID", width: 90 },
@@ -103,7 +100,10 @@ const handleDelete = async (id: number) => {
       renderCell: (params: { row: { id: number } }) => (
         <div className="actions">
           <BsPencilSquare className="edit-icon" />
-          <BsTrashFill className="delete-icon" onClick={() =>handleDelete(params.row.id)} />
+          <BsTrashFill
+            className="delete-icon"
+            onClick={() => handleDelete(params.row.id)}
+          />
         </div>
       ),
     },
@@ -122,10 +122,15 @@ const handleDelete = async (id: number) => {
         }))
       : [];
 
- 
   return (
     <div id="event-container">
-     {(isPending || isFetching) && <Loading/>}
+      {(isPending || isFetching) && 
+      
+      setTimeout(() => {
+       <Loading />
+      }, 1000)}
+  
+    
       <div className="summary">
         <div className="block">
           <div className="content">
@@ -166,9 +171,8 @@ const handleDelete = async (id: number) => {
           </div>
         </div>
       </div>
-      
+
       <div className="table">
-        
         <Table
           columns={tableColumns}
           rows={tableRows}

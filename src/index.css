@@ -17,3 +17,10 @@ h1 h2 h3 {
   background: #fff;
   box-sizing: border-box;
 }
+
+.email-send-icon {
+  color: #007bff;
+  cursor: pointer;
+  margin-right:10px;
+  font-size: 20px;
+}

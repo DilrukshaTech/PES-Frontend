@@ -45,7 +45,7 @@ export const Sessions = () => {
   const eventId = useEventStore((state) => state.eventId);
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isFetching, isPending } = useQuery<EventType>({
+  const { data, isLoading, isFetching } = useQuery<EventType>({
     enabled: !!eventId,
     queryKey: ["events", eventId],
     refetchOnWindowFocus: false,
@@ -56,7 +56,7 @@ export const Sessions = () => {
       }),
   });
 
-  const { mutateAsync} = useMutation({
+  const { mutateAsync,isPending} = useMutation({
     mutationFn: async (values: CreateSessionType) => {
       const finalValues = {
         ...values,
@@ -71,6 +71,7 @@ export const Sessions = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["events", eventId] });
       setHandleOpen(false);
     },
   });
@@ -130,7 +131,7 @@ export const Sessions = () => {
 
   return (
     <div id="session-container">
-      {(isPending || isFetching) && <Loading />}
+      {(isPending || isFetching || isLoading) && <Loading />}
       <div className="table">
         <TableTop handleOpen={handleOpenPopup} btnLable="New Session" />
 
@@ -142,13 +143,14 @@ export const Sessions = () => {
           content={
             <>
               <TextInput
-                label="Event Name"
+                label="Session Name"
                 name="name"
                 type="text"
                 value={formik.values.name}
                 onChange={formik.handleChange}
               />
               <TextInput
+              
                 name="date"
                 type="date"
                 value={formik.values.date}
@@ -156,12 +158,14 @@ export const Sessions = () => {
               />
 
               <TextInput
+              label="Time"
                 name="time"
                 type="time"
                 value={formik.values.time}
                 onChange={formik.handleChange}
               />
               <TextInput
+                label="Location"
                 name="location"
                 type="text"
                 value={formik.values.location}

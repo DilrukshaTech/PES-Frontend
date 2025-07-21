@@ -33,6 +33,7 @@ export const SideBar: React.FC = () => {
         { name: "Assign Groups", path: "/presenters/groups" },
       ],
     },
+      { name: "Criteria", icon: <FiUser />, path: "/criteria" },
   ];
 
   return (
