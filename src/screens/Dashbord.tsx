@@ -10,7 +10,7 @@ import TextInput from "../components/input/TextInput";
 import Popup from "../components/popup/Popup";
 import { useState } from "react";
 import Loading from "../components/loading/Loading";
-
+import useFeedbackAlertStore from "../store/useFeedbackAlartStore";
 type EventType = {
   id?: number;
   name: string;
@@ -19,6 +19,7 @@ type EventType = {
   status?: string;
 };
 export const Dashboard = () => {
+  const { showFeedback } = useFeedbackAlertStore();
   const [handleOpen, setHandleOpen] = useState<boolean>(false);
   const { FetchData } = useAxios();
   const queryClient = useQueryClient();
@@ -39,6 +40,7 @@ export const Dashboard = () => {
       return response;
     },
     onSuccess: () => {
+      showFeedback("Event created successfully", "success");
       queryClient.invalidateQueries({ queryKey: ["events"] });
       setHandleOpen(false);
     },

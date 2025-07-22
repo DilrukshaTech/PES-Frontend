@@ -8,6 +8,7 @@ import TextInput from "../../components/input/TextInput";
 import Popup from "../../components/popup/Popup";
 import { useState } from "react";
 import Loading from "../../components/loading/Loading";
+import useFeedbackAlertStore from "../../store/useFeedbackAlartStore";
 
 type MemberType = {
   id: number;
@@ -20,6 +21,7 @@ export const Members = () => {
   const [handleOpen, setHandleOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
   const { FetchData } = useAxios();
+  const { showFeedback } = useFeedbackAlertStore();
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ["members"],
@@ -66,6 +68,35 @@ export const Members = () => {
     },
   });
 
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return FetchData({
+        url: `/members/${id}`,
+        method: "DELETE",
+      });
+    }
+    ,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+      showFeedback("Member deleted successfully!", "success");
+    },
+    onError: (error) => {
+      console.error("Error deleting member:", error);
+      showFeedback("Failed to delete member. Please try again.", "error");
+    },
+  });
+
+  const handleDelete = async (id: number) => {
+    try {
+      console.log("Attempting to delete member ID:", id);
+      await deleteMutation.mutateAsync(id);
+    } catch (err) {
+      console.error("Delete failed:", err);
+      showFeedback("Delete failed. Please try again.", "failed");
+    }
+  };
+
   const tableColumns = [
     { field: "id", headerName: "ID", width: 90 },
     { field: "name", headerName: "Name", width: 150 },
@@ -79,7 +110,7 @@ export const Members = () => {
       renderCell: (params: any) => (
         <div className="actions">
           <BsPencilSquare className="edit-icon" />
-          <BsTrashFill className="delete-icon" />
+          <BsTrashFill className="delete-icon" onClick={()=>handleDelete(params.row.id)}/>
         </div>
       ),
     },

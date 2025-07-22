@@ -12,6 +12,8 @@ import TextInput from "../../components/input/TextInput";
 import DropDown from "../../components/input/DropDown";
 import Popup from "../../components/popup/Popup";
 import { useFormik } from "formik";
+import useFeedbackAlertStore from "../../store/useFeedbackAlartStore";
+import axios from "axios";
 
 interface SessionType {
   id: number;
@@ -40,6 +42,8 @@ type CreateSessionType = {
 };
 
 export const Sessions = () => {
+  const {showFeedback }= useFeedbackAlertStore();
+
   const [handleOpen, setHandleOpen] = useState<boolean>(false);
   const { FetchData } = useAxios();
   const eventId = useEventStore((state) => state.eventId);
@@ -70,11 +74,41 @@ export const Sessions = () => {
       return response;
     },
     onSuccess: () => {
+      
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       queryClient.invalidateQueries({ queryKey: ["events", eventId] });
+       showFeedback("Session created successfully", "success");
       setHandleOpen(false);
+     
     },
   });
+
+  
+const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await axios.delete(`http://localhost:3000/sessions/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    },
+    onSuccess: () => {
+      showFeedback("Session deleted successfully!", "success");
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["events", eventId] });
+    },
+  });
+
+const handleDelete = async (id: number) => {
+  try {
+    console.log("Attempting to delete session ID:", id);
+    await deleteMutation.mutateAsync(id);
+  }
+  catch (err) {
+    console.error("Delete failed:", err);
+    showFeedback("Delete failed. Check for related presenters.", "failed");
+  }
+}
 
   const formik = useFormik({
     initialValues: {
@@ -132,14 +166,15 @@ export const Sessions = () => {
   return (
     <div id="session-container">
       {(isPending || isFetching || isLoading) && <Loading />}
+    
       <div className="table">
         <TableTop handleOpen={handleOpenPopup} btnLable="New Session" />
 
         <Popup
           isOpen={handleOpen}
           handleClose={handleClosePopup}
-          title="Create Event"
-          btnText="Create Event"
+          title="Create Session"
+          btnText="Create Session"
           content={
             <>
               <TextInput
@@ -209,7 +244,7 @@ export const Sessions = () => {
               renderCell: (params: { row: { id: number } }) => (
                 <div className="actions">
                   <BsPencilSquare className="edit-icon" />
-                  <BsTrashFill className="delete-icon" />
+                  <BsTrashFill className="delete-icon" onClick={()=>handleDelete(params.row.id)}/>
                 </div>
               ),
             },

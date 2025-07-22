@@ -11,7 +11,7 @@ import { useState } from "react";
 import Loading from "../../components/loading/Loading";
 import { useEventStore } from "../../store/eventStore";
 import DropDown from "../../components/input/DropDown";
-import Alart from "../../components/alart/Alart";
+import useFeedbackAlertStore from "../../store/useFeedbackAlartStore";
 
 type MemberType = {
   type: string;
@@ -23,6 +23,7 @@ type MemberType = {
 
 export const AssignIndividual = () => {
 
+  const { showFeedback} =  useFeedbackAlertStore();
   const queryClient = useQueryClient();
   const { FetchData } = useAxios();
     const [handleOpen, setHandleOpen] = useState<boolean>(false);
@@ -70,6 +71,7 @@ export const AssignIndividual = () => {
       });
     },
     onSuccess: () => {
+      showFeedback("Presenter assigned successfully!","success");
       queryClient.invalidateQueries({ queryKey: ["presenters"] });
       queryClient.invalidateQueries({ queryKey: ["events"] });
       setHandleOpen(false);
@@ -81,6 +83,7 @@ export const AssignIndividual = () => {
   const formik = useFormik({
     initialValues: {
      type:"Individual",
+     id: 0,
      sessionId: 0,
       members: [{ memberId: 0 }],
     },
@@ -94,6 +97,33 @@ export const AssignIndividual = () => {
     },
   });
 
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return FetchData({
+        url: `/presenters/${id}`,
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      showFeedback("Presenter deleted successfully!", "success");
+      queryClient.invalidateQueries({ queryKey: ["presenters"] });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+    onError: (error) => {
+      console.error("Error deleting presenter:", error);
+      showFeedback("Failed to delete presenter. Please try again.", "failed");
+    },
+  });
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteMutation.mutateAsync(id);
+    } catch (err) {
+      console.error("Delete failed:", err);
+      showFeedback("Delete failed. Please try again.", "failed");
+    }
+  };
 
   //send email with QR code
   
@@ -118,7 +148,7 @@ export const AssignIndividual = () => {
             memberId: params.row.id
           })}/>
           <BsPencilSquare className="edit-icon" />
-          <BsTrashFill className="delete-icon" />
+          <BsTrashFill className="delete-icon" onClick={()=>handleDelete(params.row.id)}/>
           
         </div>
       ),
@@ -129,7 +159,7 @@ export const AssignIndividual = () => {
     (events as any)?.sessions?.flatMap((session: any) =>
       session.presenters.flatMap((presenter: any) =>
         presenter.members.map((member: any) => ({
-          id: member.id,
+          id: presenter.id,
           name: member.name,
           email: member.email,
           phone: member.phone,
@@ -168,7 +198,8 @@ export const AssignIndividual = () => {
     });
   },
   onSuccess: () => {
-    alert("Email sent successfully!");
+    showFeedback("Email sent successfully!","success");
+
    
   },
   onError: (error) => {

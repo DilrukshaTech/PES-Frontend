@@ -15,6 +15,7 @@ import { AsignNewJudge } from "./screens/judges/AsignNewJudge";
 import { AssignIndividual } from "./screens/presenters/AssignIndividual";
 import { AssignGroups } from "./screens/presenters/AssignGroups";
 import { Criteria } from "./screens/criteria/Criteria";
+import FeedbackAlert from "./components/alart/Alart";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               <Route path="criteria" element={<Criteria />} />
             </Route>
           </Routes>
+         <FeedbackAlert/>
         </Suspense>
       </ThemeProvider>
     </>

@@ -8,6 +8,7 @@ import { useAxios } from "../../utils/useAxios";
 import { BsTrashFill } from "react-icons/bs";
 import { BsPencilSquare } from "react-icons/bs";
 import Loading from "../../components/loading/Loading";
+import useFeedbackAlertStore from "../../store/useFeedbackAlartStore";
 
 type EventType = {
   id?: number;
@@ -18,6 +19,8 @@ type EventType = {
 };
 
 export const Event: React.FC = () => {
+
+  const { showFeedback } = useFeedbackAlertStore();
   const { FetchData } = useAxios();
   const queryClient = useQueryClient();
 
@@ -28,7 +31,7 @@ export const Event: React.FC = () => {
     isFetching,
   } = useQuery<EventType[]>({
     enabled: true, // ensures the query runs when the component mounts
-    refetchOnWindowFocus: false, // prevents refetch when tab regains focus
+   
     queryKey: ["events"],
     queryFn: () =>
       FetchData({
@@ -45,15 +48,25 @@ export const Event: React.FC = () => {
       });
     },
     onSuccess: () => {
-      // Invalidate and refetch
+      showFeedback("Event deleted successfully!", "success");
       queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+    onError: (error) => {
+      console.error("Error deleting event:", error);
+      showFeedback("Failed to delete event. Please try again.", "failed");
     },
   });
 
-  const handleDelete = async (id: number) => {
-    console.log("Deleting ID:", id);
+ const handleDelete = async (id: number) => {
+  try {
+
     await deleteMutation.mutateAsync(id);
-  };
+  } catch (err) {
+    console.error("Delete failed:", err);
+    showFeedback("Delete failed. Check for related sessions.", "failed");
+  }
+};
+
 
   const tableColumns = [
     { field: "id", headerName: "ID", width: 90 },
@@ -97,15 +110,25 @@ export const Event: React.FC = () => {
       width: 200,
       sortable: false,
       filterable: false,
-      renderCell: (params: { row: { id: number } }) => (
-        <div className="actions">
-          <BsPencilSquare className="edit-icon" />
-          <BsTrashFill
-            className="delete-icon"
-            onClick={() => handleDelete(params.row.id)}
-          />
-        </div>
-      ),
+     renderCell: (params: { row: { id: number } }) => (
+  <div className="actions">
+    <BsPencilSquare
+      className="edit-icon"
+      onClick={(e) => {
+        e.stopPropagation(); // prevent row click
+        console.log("Edit clicked");
+      }}
+    />
+    <BsTrashFill
+      className="delete-icon"
+      onClick={(e) => {
+        e.stopPropagation(); 
+        handleDelete(params.row.id);
+      }}
+    />
+  </div>
+),
+
     },
   ];
 

@@ -1,4 +1,3 @@
-// src/hooks/useAxios.ts
 import axios from "axios";
 import type { Method } from "axios";
 
@@ -10,7 +9,7 @@ interface FetchDataProps {
 
 export const useAxios = () => {
   const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
+    baseURL: "http://localhost:3000",
     headers: {
       "Content-Type": "application/json",
     },
@@ -22,16 +21,30 @@ export const useAxios = () => {
     data = null,
   }: FetchDataProps): Promise<T> => {
     try {
-      const response = await axiosInstance({
+      const config: any = {
         url,
         method,
-        data,
-      });
+        headers: {
+          "Content-Type": "application/json",
+        },
+        validateStatus: (status: number) => status >= 200 && status < 500,
+      };
+
+      //only attach data for methods that accept a body (and if data is not null)
+      if (["POST", "PUT", "PATCH"].includes(method.toUpperCase()) && data !== null) {
+        config.data = data;
+      }
+
+      const response = await axiosInstance(config);
+
+      if (response.status === 204 || !response.data) {
+        return {} as T;
+      }
 
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        console.error(`API ${method} ${url} failed:`, error.response || error);
+        console.error(`API ${method} ${url} failed:`, error.response?.data || error);
       } else {
         console.error(`API ${method} ${url} failed:`, error);
       }

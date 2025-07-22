@@ -9,7 +9,7 @@ import Loading from "../../components/loading/Loading";
 import { useFormik } from "formik";
 import Popup from "../../components/popup/Popup";
 import TextInput from "../../components/input/TextInput";
-
+import useFeedbackAlertStore from "../../store/useFeedbackAlartStore";
 interface JudgeType {
   id: number;
   name: string;
@@ -19,6 +19,7 @@ interface JudgeType {
   sessions?: { id: number; name: string }[];
 }
 export const Judges = () => {
+  const { showFeedback } = useFeedbackAlertStore();
   const [handleOpen, setHandleOpen] = useState<boolean>(false);
   const { FetchData } = useAxios();
   const queryClient = useQueryClient();
@@ -38,14 +39,13 @@ export const Judges = () => {
       }),
   });
 
-  const { mutateAsync} = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: async (values: JudgeType) => {
       const finalValues = {
         name: values.name,
         email: values.email,
         phone: values.phone,
         category: values.category,
-       
       };
       return FetchData({
         url: `/judges`,
@@ -54,6 +54,7 @@ export const Judges = () => {
       });
     },
     onSuccess: () => {
+      showFeedback("Judge created successfully", "success");
       queryClient.invalidateQueries({ queryKey: ["judges"] });
       setHandleOpen(false);
     },
@@ -65,7 +66,6 @@ export const Judges = () => {
       email: "",
       phone: "",
       category: "",
-     
     },
     onSubmit: async (values: JudgeType) => {
       try {
@@ -76,6 +76,34 @@ export const Judges = () => {
       }
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return FetchData({
+        url: `/judges/${id}`,
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      showFeedback("Judge deleted successfully", "success");
+      queryClient.invalidateQueries({ queryKey: ["judges"] });
+    },
+
+     onError: (error) => {
+      console.error("Error deleting judge:", error);
+      showFeedback("Error deleting judge", "failed");
+    },
+  });
+ 
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteMutation.mutateAsync(id);
+    } catch (error) {
+      console.error("Error deleting judge:", error);
+      showFeedback("Failed to delete judge. Please try again.", "failed");
+    }
+  };
+
 
   const tableRows = data?.map((judge: any) => ({
     id: judge.id,
@@ -111,7 +139,6 @@ export const Judges = () => {
                 name="name"
                 value={formik.values.name}
                 onChange={formik.handleChange}
-              
               />
               <TextInput
                 label="Email"
@@ -124,14 +151,12 @@ export const Judges = () => {
                 name="phone"
                 value={formik.values.phone}
                 onChange={formik.handleChange}
-                
               />
               <TextInput
                 label="Category"
                 name="category"
                 value={formik.values.category}
                 onChange={formik.handleChange}
-               
               />
             </>
           }
@@ -152,7 +177,7 @@ export const Judges = () => {
               renderCell: (params: { row: { id: number } }) => (
                 <div className="actions">
                   <BsPencilSquare className="edit-icon" />
-                  <BsTrashFill className="delete-icon" />
+                  <BsTrashFill className="delete-icon" onClick={()=>handleDelete(params.row.id)}/>
                 </div>
               ),
             },
